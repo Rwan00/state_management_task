@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:state_management_task/cubit/counter_cubit.dart';
 
 class CounterScreen extends StatefulWidget {
-  const CounterScreen({super.key,});
- 
+  const CounterScreen({super.key});
+
   @override
   State<CounterScreen> createState() => _CounterScreenState();
 }
 
 class _CounterScreenState extends State<CounterScreen> {
-  int _counter = 0;
-
   void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
+    context.read<CounterCubit>().incrementCounter();
   }
 
   @override
@@ -28,9 +27,20 @@ class _CounterScreenState extends State<CounterScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            BlocConsumer<CounterCubit, CounterState>(
+              listener: (context, state) {
+                if (state is CounterIsIncremented) {
+                  Fluttertoast.showToast(
+                    msg: "counter: ${context.read<CounterCubit>().counter}",
+                  );
+                }
+              },
+              builder: (context, state) {
+                return Text(
+                  context.watch<CounterCubit>().counter.toString(),
+                  style: Theme.of(context).textTheme.headlineMedium,
+                );
+              },
             ),
           ],
         ),
@@ -39,7 +49,7 @@ class _CounterScreenState extends State<CounterScreen> {
         onPressed: _incrementCounter,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
-      ), 
+      ),
     );
   }
 }
